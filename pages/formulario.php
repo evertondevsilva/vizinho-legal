@@ -1,5 +1,4 @@
 <?php
-
 require_once '../config.php';
 require_once '../src/database.php';
 require_once '../src/actions/salvaFerramenta.php';
