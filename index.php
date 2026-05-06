@@ -1,7 +1,12 @@
 <?php
 require_once __DIR__ . '/src/database.php';
 
-$ferramentas = listarFerramentasComCategoria($pdo);
+$categorias = buscarCategorias($pdo);
+
+$termo_busca = $_GET['busca'] ?? null;
+$filtro_categoria = $_GET['categoria'] ?? null;
+
+$ferramentas = buscarFerramentas($pdo, $termo_busca, $filtro_categoria);
 ?>
 
 <!DOCTYPE html>
@@ -26,6 +31,22 @@ $ferramentas = listarFerramentasComCategoria($pdo);
         </ul>
     </nav>
     <main>
+        <form method="GET" class="mb-6 flex flex-wrap gap-2">
+            <input type="text" name="busca" placeholder="Pesquisar ferramenta..." 
+                class="border p-2 rounded flex-grow" value="<?= $_GET['busca'] ?? '' ?>">
+            
+            <select name="categoria" class="border p-2 rounded">
+                <option value="">Todas as Categorias</option>
+                <?php foreach($categorias as $cat): ?>
+                    <option value="<?= $cat['id'] ?>" <?= (isset($_GET['categoria']) && $_GET['categoria'] == $cat['id']) ? 'selected' : '' ?>>
+                        <?= $cat['nome'] ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+
+            <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">Filtrar</button>
+            <a href="index.php" class="bg-gray-200 px-4 py-2 rounded">Limpar Filtro</a>
+        </form>
         <h1>Lista de Ferramentas</h1>
         
         <?php if(isset($_GET['msg'])): ?>
@@ -72,8 +93,17 @@ $ferramentas = listarFerramentasComCategoria($pdo);
                     </td>
                 </tr>
                 <?php endforeach; ?>
+                
             </tbody>
+            
         </table>
+        
+        <?php if (empty($ferramentas)): ?>
+                    <div class="p-8 text-center bg-gray-50 rounded-lg border-2 border-dashed">
+                        <p class="text-gray-500">Nenhuma ferramenta encontrada para esta busca.</p>
+                    </div>
+                    <?php else: ?>
+                <?php endif; ?>
     </main>
 
     <script>

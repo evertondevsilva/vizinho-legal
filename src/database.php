@@ -65,6 +65,39 @@ function salvarFerramenta($pdo, $dados) {
 
 }
 
+function excluirFerramenta($pdo, $id) {
+    $sql = "DELETE FROM ferramentas WHERE id = :id";
+    $stmt = $pdo->prepare($sql);
+    return $stmt->execute(['id' => $id]);
+}
+
+function buscarFerramentas($pdo, $busca = null, $categoria = null) {
+    // 1. Base da query com o JOIN para trazer o nome da categoria
+    $sql = "SELECT f.*, c.nome AS nome_categoria 
+            FROM ferramentas f 
+            LEFT JOIN categorias c ON f.categoria = c.id 
+            WHERE 1=1"; // Esse 1=1 facilita colocar os "AND" depois
+    
+    $params = [];
+
+    // 2. Se o usuário digitou algo no pesquisar
+    if ($busca) {
+        $sql .= " AND f.nome LIKE :busca";
+        $params[':busca'] = "%$busca%";
+    }
+
+    // 3. Se o usuário selecionou uma categoria
+    if ($categoria) {
+        $sql .= " AND f.categoria = :categoria";
+        $params[':categoria'] = $categoria;
+    }
+
+    $sql .= " ORDER BY f.id DESC";
+
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute($params);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
 // Usar esse salvamentFerramenta quando o status estiver no banco na ac3
 // function salvarFerramenta($pdo, $dados) {
 //     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -114,10 +147,9 @@ function salvarFerramenta($pdo, $dados) {
 
 // }
 
-function excluirFerramenta($pdo, $id) {
-    $sql = "DELETE FROM ferramentas WHERE id = :id";
-    $stmt = $pdo->prepare($sql);
-    return $stmt->execute(['id' => $id]);
-}
+
+
+
 
 ?>
+
